@@ -30,10 +30,6 @@ class ProductRegisterViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //tableView.delegate = self
-        //tableView.dataSource = self
-        tfProduct.delegate = self
-        tfPrice.delegate = self
         
         
         if product != nil {
@@ -43,7 +39,6 @@ class ProductRegisterViewController: UIViewController {
             if let state = product.state {
                 tfState.text = state.state
             }
-            //tfState.text = "\(product.states?.state)"
             if let image = product.photo as? UIImage {
                 ivPhoto.image = image
             }
@@ -113,35 +108,6 @@ class ProductRegisterViewController: UIViewController {
     
     // MARK: - IBActions
     @IBAction func addPhoto(_ sender: UIButton) {
-        
-        
-//        //Criando o alerta que será apresentado ao usuário
-//        let alert = UIAlertController(title: "Selecionar poster", message: "De onde você quer escolher o poster?", preferredStyle: .actionSheet)
-//
-//        //Verificamos se o device possui câmera. Se sim, adicionamos a devida UIAlertAction
-//        if UIImagePickerController.isSourceTypeAvailable(.camera) {
-//            let cameraAction = UIAlertAction(title: "Câmera", style: .default, handler: { (action: UIAlertAction) in
-//                self.selectPicture(sourceType: .camera)
-//            })
-//            alert.addAction(cameraAction)
-//        }
-//
-//        //As UIAlertActions de Biblioteca de fotos e Álbum de fotos também são criadas e adicionadas
-//        let libraryAction = UIAlertAction(title: "Biblioteca de fotos", style: .default) { (action: UIAlertAction) in
-//            self.selectPicture(sourceType: .photoLibrary)
-//        }
-//        alert.addAction(libraryAction)
-//
-//        let photosAction = UIAlertAction(title: "Álbum de fotos", style: .default) { (action: UIAlertAction) in
-//            self.selectPicture(sourceType: .savedPhotosAlbum)
-//        }
-//        alert.addAction(photosAction)
-//
-//        let cancelAction = UIAlertAction(title: "Cancelar", style: .cancel, handler: nil)
-//        alert.addAction(cancelAction)
-//
-//        present(alert, animated: true, completion: nil)
-        
         //Criando o alerta que será apresentado ao usuário
         let alert = UIAlertController(title: "Selecionar poster", message: "De onde você quer escolher o poster?", preferredStyle: .actionSheet)
         
@@ -159,10 +125,10 @@ class ProductRegisterViewController: UIViewController {
         }
         alert.addAction(libraryAction)
         
-        let photosAction = UIAlertAction(title: "Álbum de fotos", style: .default) { (action: UIAlertAction) in
-            self.selectPicture(sourceType: .savedPhotosAlbum)
-        }
-        alert.addAction(photosAction)
+//        let photosAction = UIAlertAction(title: "Álbum de fotos", style: .default) { (action: UIAlertAction) in
+//            self.selectPicture(sourceType: .savedPhotosAlbum)
+//        }
+//        alert.addAction(photosAction)
         
         let cancelAction = UIAlertAction(title: "Cancelar", style: .cancel, handler: nil)
         alert.addAction(cancelAction)
@@ -171,7 +137,6 @@ class ProductRegisterViewController: UIViewController {
 }
     
     @IBAction func addProduct(_ sender: UIButton) {
-       // print(tfState.text)
         //validacao de campos de texto:
         if((tfProduct.text == "") || (tfPrice.text == "") || (tfState.text == "")){
             self.showAlert()
@@ -199,32 +164,26 @@ class ProductRegisterViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
         }
     }
-    
-    // Menssagem para validar se o pessoal insere todos os campos:
-    func showAlert() {
-        let alert = UIAlertController(title: "Alerta!", message: "Por favor preencha os campos em branco!", preferredStyle: .alert)
+        // Menssagem para validar se o pessoal insere todos os campos:
+        func showAlert() {
+            let alert = UIAlertController(title: "Alerta!", message: "Por favor preencha os campos em branco!", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
+        }
+    // MARK:  Methods
+    func selectPicture(sourceType: UIImagePickerControllerSourceType) {
+        //Criando o objeto UIImagePickerController
+        let imagePicker = UIImagePickerController()
         
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        //Definimos seu sourceType através do parâmetro passado
+        imagePicker.sourceType = sourceType
         
-        present(alert, animated: true, completion: nil)
+        //Definimos a MovieRegisterViewController como sendo a delegate do imagePicker
+        imagePicker.delegate = self
         
-        
+        //Apresentamos a imagePicker ao usuário
+        present(imagePicker, animated: true, completion: nil)
     }
-//
-//    func selectPicture(sourceType: UIImagePickerControllerSourceType) {
-//
-//        //Criando o objeto UIImagePickerController
-//        let imagePicker = UIImagePickerController()
-//
-//        //Definimos seu sourceType através do parâmetro passado
-//        imagePicker.sourceType = sourceType
-//
-//        //Definimos a MovieRegisterViewController como sendo a delegate do imagePicker
-//        imagePicker.delegate = self
-//
-//        //Apresentamos a imagePicker ao usuário
-//        present(imagePicker, animated: true, completion: nil)
-//    }
     
     @IBAction func selectState(_ sender: UITextField) {
         loadStates()
@@ -242,30 +201,30 @@ class ProductRegisterViewController: UIViewController {
         }
     }
     
-    func selectPicture(sourceType: UIImagePickerControllerSourceType) {
-        let imagePicker = UIImagePickerController()
-        imagePicker.sourceType = sourceType
-        imagePicker.delegate = self
-        present(imagePicker, animated: true, completion: nil)
-    }
     
 }
 
 extension ProductRegisterViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String: AnyObject]?) {
+    //O método abaixo nos trará a imagem selecionada pelo usuário em seu tamanho original
+   @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String: AnyObject]?) {
         
-        let smallSize = CGSize(width: 300, height: 300)
-        
+        //Iremos usar o código abaixo para criar uma versão reduzida da imagem escolhida pelo usuário
+        let smallSize = CGSize(width: 300, height: 280)
         UIGraphicsBeginImageContext(smallSize)
         image.draw(in: CGRect(x: 0, y: 0, width: smallSize.width, height: smallSize.height))
-        smallImage = UIGraphicsGetImageFromCurrentImageContext()
-        ivPhoto.image = smallImage
-        UIGraphicsEndImageContext()
-        dismiss(animated: true, completion: nil)
         
+        //Atribuímos a versão reduzida da imagem à variável smallImage
+        smallImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        ivPhoto.image = smallImage //Atribuindo a imagem à ivPoster
+        
+        //Aqui efetuamos o dismiss na UIImagePickerController, para retornar à tela anterior
+        dismiss(animated: true, completion: nil)
     }
 }
+
 
 
 extension ProductRegisterViewController: UIPickerViewDelegate {

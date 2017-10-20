@@ -17,7 +17,7 @@ class TotalComprasViewController: UIViewController {
     var product: Product!
     var lbDolar: Double = 0.0
     var lbReal: Double = 0.0
-    //var cotacao: Double = UserDefaults.standard.double(forKey: "cotacao")
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +38,6 @@ class TotalComprasViewController: UIViewController {
         fetchRequest.sortDescriptors = [sortDescriptor]
         do {
             dataSource = try context.fetch(fetchRequest)
-            print(dataSource.count)
             calculaDolarReal()
         } catch {
             print(error.localizedDescription)
@@ -46,14 +45,13 @@ class TotalComprasViewController: UIViewController {
     }
 
     func calculaDolarReal(){
+    var cotacao: Double = 1
+        cotacao = UserDefaults.standard.double(forKey: "cotacao")
         for product in dataSource {
             lbDolar += product.price
             
             //Se a compra foi com cartao
             var iof: Double = 1
-            var cotacao: Double = 1
-            cotacao = UserDefaults.standard.double(forKey: "cotacao")
-            
             if product.card == true{
                 iof = 1 + UserDefaults.standard.double(forKey: "iof")/100
             }
@@ -65,12 +63,6 @@ class TotalComprasViewController: UIViewController {
             }
             
             lbReal += product.price * imposto * iof * cotacao
-            
-            print("contacao", cotacao)
-            print("iof",iof)
-            print("imposto",imposto)
-            print("price:", product.price)
-            print("Esse e o calculo em real:",lbReal)
 
             
         }

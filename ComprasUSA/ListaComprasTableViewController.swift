@@ -18,13 +18,17 @@ class ListaComprasTableViewController: UITableViewController {
         super.viewDidLoad()
         tableView.estimatedRowHeight = 106
         tableView.rowHeight = UITableViewAutomaticDimension
-        //tableView.separatorStyle = .none
         label.text = "Sua lista está vazia"
         label.textAlignment = .center
         label.textColor = .black
         
         loadProducts()
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
     }
    
    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -71,25 +75,29 @@ class ListaComprasTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "produtcCell", for: indexPath) as! ProdutoTableViewCell
         let product = fetchedResultController.object(at: indexPath)
-        cell.lbProductName.text = product.product
+        cell.lbProductName.text = "Produto:  " + product.product!
+        
         if product.card == true {
             cell.tfCartao.text = "Sim"
         } else{
             cell.tfCartao.text = "Nao"
         }
-        cell.lbPrice.text = "\(product.price)"
+        cell.lbPrice.text = "Preco:  " + "\(product.price)"
+        
         if let image = product.photo as? UIImage {
             cell.ivPhoto.image = image
         } else {
             cell.ivPhoto.image = nil
         }
+        
         if let state = product.state{
             if let stateName = state.state {
-                cell.lbStateName.text = stateName
+                cell.lbStateName.text =  "Estado da Compra:  " + stateName
             }
         } else {
             cell.lbStateName.text = nil
         }
+        
         return cell
     }
     

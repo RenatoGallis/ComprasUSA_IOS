@@ -26,19 +26,23 @@ class SettingsViewController: UIViewController {
     var product: Product!
     
     
+    var label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 22))
+    
     @IBAction func addState(_ sender: UIButton) {
         showAlert(type: .add, state: nil)
-        
-        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.separatorStyle = .none
+        //tableView.separatorStyle = .none
         tableView.delegate = self
         tableView.dataSource = self
         tfCotacao.delegate = self
         tfIof.delegate = self
+        
+        label.text = "Lista de estados vazia"
+        label.textAlignment = .center
+        label.textColor = .black
         
         loadStates()
     }
@@ -110,60 +114,36 @@ class SettingsViewController: UIViewController {
         UserDefaults.standard.set(tfIof.text, forKey: "iof")
     }
     
+    
 }
 
 
 extension SettingsViewController: UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        print("entrei no excluir estado")
-        let deleteAction = UITableViewRowAction(style: .destructive, title: "Excluir") { (action: UITableViewRowAction, indexPath: IndexPath) in
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
             let state = self.dataSource[indexPath.row]
             
-            
             if let stateName = state.state {
-                print("o estado que sera deletado \(stateName)")
                 
-//                let fetchRequest: NSFetchRequest<Product> = Product.fetchRequest()
-//                fetchRequest.predicate = NSPredicate(format: "state = '%@'", stateName)
-                //NSPredicate(format: "state = '%@'", stateName)
-                
-                    let res: [Product] = state.products?.filter{($0 as! Product).state?.state == stateName} as! [Product]
-                    print(res.count)
-                    for result in res
-                    {
-                        print(result.product)
-                        self.context.delete(result)
-                    }
-                
-                
-//                do {
-//                    self.products = try self.context.fetch(fetchRequest)
-//                    print(self.products.count)
-//                    for product in self.products{
-//                        print(product)
-//                        self.context.delete(product)
-//                    }
-//                } catch {
-//                    print(error.localizedDescription)
-//                }
+                let produtos: [Product] = state.products?.filter{($0 as! Product).state?.state == stateName} as! [Product]
+                for produto in produtos
+                {
+                    self.context.delete(produto)
+                }
             }
-            
-            
             
             self.context.delete(state)
             try! self.context.save()
             self.dataSource.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
-        
-        let editAction = UITableViewRowAction(style: .normal, title: "Editar") { (action: UITableViewRowAction, indexPath: IndexPath) in
-            let states = self.dataSource[indexPath.row]
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let state = self.dataSource[indexPath.row] as? State{
             tableView.setEditing(false, animated: true)
-            self.showAlert(type: .edit, state: states)
+            self.showAlert(type: .edit, state: state)
         }
-        editAction.backgroundColor = .blue
-        return [editAction, deleteAction]
     }
 }
 
@@ -171,6 +151,15 @@ extension SettingsViewController: UITableViewDelegate {
 extension SettingsViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if dataSource.count > 0 {
+            tableView.backgroundView = (dataSource.count == 0) ? label : nil
+            return dataSource.count
+        } else {
+            tableView.backgroundView = label
+            
+            return 0
+        }
+        
         return dataSource.count
     }
     
